@@ -16,9 +16,8 @@ const (
 // configuration, as well as values computed from the configuration. Any public fields will be
 // deserialized from the Mattermost server configuration in OnConfigurationChange.
 type configuration struct {
-	RestrictToSysadmins       bool
-	RestrictToSysadminsString string
-	AskConfirm                string
+	RestrictToSysadmins bool   `json:"restrictToSysadmins"`
+	AskConfirm          string `json:"askConfirm"`
 }
 
 // Clone shallow copies the configuration. Your implementation may require a deep copy if
@@ -78,10 +77,9 @@ func (p *Plugin) OnConfigurationChange() error {
 		return errors.Wrap(err, "failed to load plugin configuration")
 	}
 
-	configuration.RestrictToSysadmins = (configuration.RestrictToSysadminsString == "true")
 	p.setConfiguration(configuration)
 
-	if err := p.API.RegisterCommand(p.getCommand()); err != nil {
+	if err := p.API.RegisterCommand(getCommand(configuration)); err != nil {
 		return errors.Wrap(err, "failed to register new command")
 	}
 
